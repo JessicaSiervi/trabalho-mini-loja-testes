@@ -26,16 +26,26 @@ describe('Cart', () => {
   it('exibe a mensagem "Seu carrinho está vazio" quando não há itens', () => {
     // TODO: renderize o Cart com items={[]} e onRemove={jest.fn()}
     // e verifique que a mensagem de carrinho vazio está na tela
+    render(<Cart items={[]} onRemove={jest.fn()} />)
+    const vazio = screen.getByText(/seu carrinho está vazio/i)
+    expect(vazio).toBeInTheDocument()
   })
 
   it('renderiza todos os itens do carrinho', () => {
     // TODO: renderize o Cart com mockCartItems
     // e verifique que os nomes dos dois produtos aparecem na tela
+    render(<Cart items={mockCartItems} onRemove={jest.fn()} />)
+    expect(screen.getByText(/camiseta básica/i)).toBeInTheDocument()
+    expect(screen.getByText(/tênis esportivo/i)).toBeInTheDocument()
+    
   })
 
   it('exibe o total correto somando os itens', () => {
     // TODO: renderize o Cart com mockCartItems
     // e verifique que o total "R$\xa0299,70" aparece na tela
+     render(<Cart items={mockCartItems} onRemove={jest.fn()} />)
+     const total = screen.getByText(/total:.*299,70/i)
+     expect(total).toBeInTheDocument()
   })
 
   it('chama onRemove com o id correto ao clicar em "Remover"', async () => {
@@ -43,10 +53,23 @@ describe('Cart', () => {
     // renderize o Cart com mockCartItems e o mock
     // clique no botão "Remover" do primeiro item (Camiseta Básica, id=1)
     // e verifique que onRemove foi chamado com o id correto
+    const onRemove = jest.fn()
+    render(<Cart items={mockCartItems} onRemove={onRemove} />)
+
+    const onRemoveButtons = screen.getAllByRole('button', { name: /remover/i })
+    await userEvent.click(onRemoveButtons[0])
+
+    expect(onRemove).toHaveBeenCalledWith(mockCartItems[0].product.id)
+    
   })
 
   it('não exibe o total quando o carrinho está vazio', () => {
     // TODO: renderize o Cart com items={[]}
     // e use uma assertion *negativa* para verificar que nenhum texto de "Total" aparece
+    render(<Cart items={[]} onRemove={jest.fn()} />)
+
+    const total = screen.queryByText(/total:/i)
+    expect(total).not.toBeInTheDocument()
+
   })
 })
