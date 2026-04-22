@@ -23,6 +23,9 @@ describe('CheckoutForm', () => {
 
     // TODO: verifique que os campos Nome, E-mail e CEP estão presentes
     // Dica: use getByLabelText() buscando pelo texto de cada <label>
+    expect(screen.getByLabelText(/Nome/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/E-mail/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/cep/i)).toBeInTheDocument()
   })
 
   it('exibe erro quando o nome está vazio ao tentar submeter', async () => {
@@ -32,6 +35,8 @@ describe('CheckoutForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
 
     // TODO: verifique que a mensagem "Nome é obrigatório" está na tela
+    expect(screen.getByText('/Nome é obrigatório/')).toBeInTheDocument()
+
   })
 
   it('exibe erro quando o e-mail é inválido', async () => {
@@ -39,6 +44,12 @@ describe('CheckoutForm', () => {
     // preencha o campo e-mail com um valor inválido (ex: "nao-é-email")
     // clique em "Finalizar Compra"
     // e verifique que a mensagem "E-mail inválido" aparece na tela
+    render(<CheckoutForm onSubmit={jest.fn()} />)
+    await userEvent.type(screen.getByLabelText(/e-mail/i), 'nao-é-email')
+    await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
+
+    expect(screen.getByText(/e-mail inválido/i)).toBeInTheDocument()
+
   })
 
   it('exibe erro quando o CEP tem menos de 8 dígitos', async () => {
@@ -46,6 +57,12 @@ describe('CheckoutForm', () => {
     // preencha o campo CEP com menos de 8 dígitos (ex: "1234")
     // clique em "Finalizar Compra"
     // e verifique que a mensagem "CEP deve ter 8 dígitos" aparece na tela
+    render(<CheckoutForm onSubmit={jest.fn()} />)
+    await userEvent.type(screen.getByLabelText(/cep/i), '1234')
+    await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
+
+    expect(screen.getByText(/cep deve ter 8 dígitos/i)).toBeInTheDocument()
+
   })
 
   it('chama onSubmit com os dados corretos quando o formulário é válido', async () => {
@@ -53,6 +70,8 @@ describe('CheckoutForm', () => {
     // preencha os três campos com dados válidos
     // clique em "Finalizar Compra"
     // e verifique que onSubmit foi chamado com o objeto { nome, email, cep }
+   
+})
   })
 
   it('não chama onSubmit quando há erros de validação', async () => {
@@ -63,4 +82,3 @@ describe('CheckoutForm', () => {
 
     // TODO: verifique que onSubmit *não* foi chamado
   })
-})
