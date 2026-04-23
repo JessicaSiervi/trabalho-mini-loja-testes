@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CheckoutForm } from './CheckoutForm'
+import { mock } from 'node:test'
 
 /**
  * Exercício 3 — CheckoutForm
@@ -25,7 +26,7 @@ describe('CheckoutForm', () => {
     // Dica: use getByLabelText() buscando pelo texto de cada <label>
     expect(screen.getByLabelText(/Nome/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/E-mail/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/cep/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/CEP/i)).toBeInTheDocument()
   })
 
   it('exibe erro quando o nome está vazio ao tentar submeter', async () => {
@@ -35,7 +36,7 @@ describe('CheckoutForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
 
     // TODO: verifique que a mensagem "Nome é obrigatório" está na tela
-    expect(screen.getByText('/Nome é obrigatório/')).toBeInTheDocument()
+    expect(screen.getByText('Nome é obrigatório')).toBeInTheDocument()
 
   })
 
@@ -45,10 +46,10 @@ describe('CheckoutForm', () => {
     // clique em "Finalizar Compra"
     // e verifique que a mensagem "E-mail inválido" aparece na tela
     render(<CheckoutForm onSubmit={jest.fn()} />)
-    await userEvent.type(screen.getByLabelText(/e-mail/i), 'nao-é-email')
+    await userEvent.type(screen.getByLabelText('E-mail'), 'nao-é-email')
     await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
 
-    expect(screen.getByText(/e-mail inválido/i)).toBeInTheDocument()
+    expect(screen.getByText(/E-mail inválido/i)).toBeInTheDocument()
 
   })
 
@@ -58,10 +59,10 @@ describe('CheckoutForm', () => {
     // clique em "Finalizar Compra"
     // e verifique que a mensagem "CEP deve ter 8 dígitos" aparece na tela
     render(<CheckoutForm onSubmit={jest.fn()} />)
-    await userEvent.type(screen.getByLabelText(/cep/i), '1234')
-    await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
+    await userEvent.type(screen.getByLabelText(/CEP/i), '1234')
+    await userEvent.click(screen.getByRole('button', { name: /Finalizar compra/i }))
 
-    expect(screen.getByText(/cep deve ter 8 dígitos/i)).toBeInTheDocument()
+    expect(screen.getByText(/CEP deve ter 8 dígitos/i)).toBeInTheDocument()
 
   })
 
@@ -70,9 +71,19 @@ describe('CheckoutForm', () => {
     // preencha os três campos com dados válidos
     // clique em "Finalizar Compra"
     // e verifique que onSubmit foi chamado com o objeto { nome, email, cep }
-   
+    const onSubmit = jest.fn()
+    render(<CheckoutForm onSubmit={onSubmit} />)
+    await userEvent.type(screen.getByLabelText(/Nome/i), 'Jéssica Silva Siervi')
+    await userEvent.type(screen.getByLabelText(/E-mail/i), 'jessicasiervi20@gmail.com')
+    await userEvent.type(screen.getByLabelText(/CEP/i), '36771416')
+    await userEvent.click(screen.getByRole('button', { name: /Finalizar compra/i }))
+    expect(onSubmit).toHaveBeenCalledWith({
+      nome: 'Jéssica Silva Siervi',
+      email: 'jessicasiervi20@gmail.com',
+      cep: '36771416'
+    })
+
 })
-  })
 
   it('não chama onSubmit quando há erros de validação', async () => {
     const onSubmit = jest.fn()
@@ -81,4 +92,8 @@ describe('CheckoutForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /finalizar/i }))
 
     // TODO: verifique que onSubmit *não* foi chamado
+
+    expect(onSubmit).not.toHaveBeenCalled()
   })
+
+})
